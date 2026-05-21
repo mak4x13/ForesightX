@@ -11,15 +11,14 @@ from app.core.config import settings
 Emit = Callable[[dict], Awaitable[None]]
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-GEMINI_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-1.5-flash:generateContent"
-)
-GROQ_MODEL = "llama-3.3-70b-versatile"
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+GROQ_MODEL = settings.groq_model
+GEMINI_MODEL = settings.gemini_model
 
 
 async def emit_text(agent: str, text: str, emit: Emit, delay: float = 0.006) -> None:
+    if not isinstance(text, str):
+        text = json.dumps(text)
     for index in range(0, len(text), 28):
         await emit({"event": "agent_output", "agent": agent, "chunk": text[index : index + 28]})
         await asyncio.sleep(delay)
@@ -45,23 +44,40 @@ async def call_gemini_json(prompt: str) -> dict[str, Any]:
     if not settings.gemini_api_key:
         raise RuntimeError("GEMINI_API_KEY is not configured.")
 
-    async with httpx.AsyncClient(timeout=40) as client:
-        response = await client.post(
-            GEMINI_URL,
-            params={"key": settings.gemini_api_key},
-            json={
-                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.3,
-                    "responseMimeType": "application/json",
-                },
-            },
-        )
-        response.raise_for_status()
-        payload = response.json()
+    models = [settings.gemini_model]
+    for model in settings.gemini_fallback_models:
+        if model not in models:
+            models.append(model)
 
-    text = payload["candidates"][0]["content"]["parts"][0]["text"]
-    return extract_json_object(text)
+    last_error = None
+    async with httpx.AsyncClient(timeout=40) as client:
+        for model in models:
+            response = await client.post(
+                f"{GEMINI_BASE_URL}/{model}:generateContent",
+                params={"key": settings.gemini_api_key},
+                json={
+                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "temperature": 0.3,
+                        "responseMimeType": "application/json",
+                    },
+                },
+            )
+            if response.status_code == 404:
+                last_error = RuntimeError(f"Gemini model {model} is unavailable.")
+                continue
+            try:
+                response.raise_for_status()
+                payload = response.json()
+                text = payload["candidates"][0]["content"]["parts"][0]["text"]
+                result = extract_json_object(text)
+                result["_model"] = model
+                return result
+            except Exception as exc:
+                last_error = exc
+                continue
+
+    raise RuntimeError(f"Gemini call failed for all configured models: {last_error}")
 
 
 async def call_groq_tool_json(
@@ -125,22 +141,54 @@ async def call_groq_tool_json(
                 }
             )
 
-        final = await client.post(
-            GROQ_URL,
-            headers=headers,
-            json={
-                "model": GROQ_MODEL,
-                "messages": messages
-                + [
-                    {
-                        "role": "user",
-                        "content": "Return only the required JSON object. No markdown.",
-                    }
-                ],
-                "temperature": 0.35,
-                "response_format": {"type": "json_object"},
-            },
-        )
+        final_payload = {
+            "model": GROQ_MODEL,
+            "messages": messages
+            + [
+                {
+                    "role": "user",
+                    "content": "Return only the required JSON object. No markdown.",
+                }
+            ],
+            "temperature": 0.35,
+            "response_format": {"type": "json_object"},
+        }
+        final = await client.post(GROQ_URL, headers=headers, json=final_payload)
+        if final.status_code == 400:
+            final_payload.pop("response_format", None)
+            final = await client.post(GROQ_URL, headers=headers, json=final_payload)
         final.raise_for_status()
         content = final.json()["choices"][0]["message"]["content"]
+        return extract_json_object(content)
+
+
+async def call_groq_json(*, system_prompt: str, user_payload: dict[str, Any]) -> dict[str, Any]:
+    if not settings.groq_api_key:
+        raise RuntimeError("GROQ_API_KEY is not configured.")
+
+    headers = {
+        "Authorization": f"Bearer {settings.groq_api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": json.dumps(user_payload)
+                + "\nReturn only one valid JSON object. No markdown.",
+            },
+        ],
+        "temperature": 0.2,
+        "response_format": {"type": "json_object"},
+    }
+
+    async with httpx.AsyncClient(timeout=60) as client:
+        response = await client.post(GROQ_URL, headers=headers, json=payload)
+        if response.status_code == 400:
+            payload.pop("response_format", None)
+            response = await client.post(GROQ_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        content = response.json()["choices"][0]["message"]["content"]
         return extract_json_object(content)

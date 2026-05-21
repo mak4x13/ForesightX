@@ -18,6 +18,14 @@ copy .env.example .env
 uvicorn app.main:app --reload --port 7860
 ```
 
+For local AI calls, `backend/.env` should include:
+
+```env
+GROQ_MODEL=llama-3.3-70b-versatile
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_FALLBACK_MODELS=gemini-2.5-flash,gemini-2.0-flash,gemini-flash-latest
+```
+
 ## Frontend
 
 ```bash

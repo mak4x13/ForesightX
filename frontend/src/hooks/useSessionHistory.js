@@ -11,7 +11,10 @@ export function readSessionHistory() {
 
 export function writeSessionHistory(entry) {
   const title = entry.input.decision.slice(0, 72);
-  const next = [{ ...entry, title }, ...readSessionHistory()].slice(0, MAX_HISTORY);
+  const existing = readSessionHistory().filter(
+    (item) => item.simulation_id !== entry.simulation_id
+  );
+  const next = [{ ...entry, title }, ...existing].slice(0, MAX_HISTORY);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   return next;
 }

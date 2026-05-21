@@ -24,8 +24,8 @@ uvicorn app.main:app --reload --port 7860
 
 ## Agent Pipeline
 
-1. Orchestrator receives the user scenario and prepares a structured briefing with Gemini.
-2. Optimist, Realist, and Pessimist agents run in parallel with Groq.
+1. Orchestrator receives the user scenario and prepares a structured briefing with Gemini. The default model is `gemini-2.5-flash`, with fallback retry models configured by `GEMINI_FALLBACK_MODELS`.
+2. Optimist, Realist, and Pessimist agents run in parallel with Groq using `llama-3.3-70b-versatile` by default.
 3. Synthesizer normalizes probabilities and returns the final simulation JSON.
 
 If API keys are missing, each agent emits a fallback error event and returns deterministic demo-safe output. With `GEMINI_API_KEY` and `GROQ_API_KEY` configured, the agents call Gemini and Groq over HTTPS.

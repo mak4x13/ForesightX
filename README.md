@@ -82,6 +82,9 @@ Open `http://localhost:5173`.
 | --- | --- | --- | --- |
 | `GROQ_API_KEY` | Backend | yes for AI | Groq agent calls |
 | `GEMINI_API_KEY` | Backend | yes for AI | Gemini orchestrator calls |
+| `GROQ_MODEL` | Backend | no | Defaults to `llama-3.3-70b-versatile` |
+| `GEMINI_MODEL` | Backend | no | Defaults to `gemini-2.5-flash` |
+| `GEMINI_FALLBACK_MODELS` | Backend | no | Comma-separated Gemini retry models |
 | `SENTRY_DSN` | Backend | no | Backend exception monitoring |
 | `ADMIN_API_KEY` | Backend | yes | Protects `/admin/health` |
 | `ALLOWED_ORIGINS` | Backend | yes | JSON list of allowed frontend origins |

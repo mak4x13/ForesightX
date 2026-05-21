@@ -1,4 +1,5 @@
 import re
+import json
 from typing import Optional
 
 
@@ -67,6 +68,21 @@ def coerce_string_list(value, fallback: Optional[list[str]] = None) -> list[str]
                 items.append(str(item))
         return items or fallback or []
     return fallback or [str(value)]
+
+
+def coerce_text(value, fallback: str = "") -> str:
+    if value is None:
+        return fallback
+    if isinstance(value, str):
+        return value or fallback
+    if isinstance(value, dict):
+        for key in ("final_state", "outcome", "summary", "description", "text"):
+            if value.get(key):
+                return str(value[key])
+        return json.dumps(value)
+    if isinstance(value, list):
+        return "; ".join(coerce_text(item) for item in value if item) or fallback
+    return str(value)
 
 
 def coerce_probability(value, fallback: int) -> int:

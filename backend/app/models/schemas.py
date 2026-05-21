@@ -61,7 +61,7 @@ class SimulationMeta(BaseModel):
 
     total_agents: int = 4
     execution_time_ms: int
-    model_orchestrator: str = "gemini-1.5-flash"
+    model_orchestrator: str = "gemini-2.5-flash"
     model_agents: str = "llama-3.3-70b-versatile"
 
 

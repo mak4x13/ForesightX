@@ -164,7 +164,11 @@ export function useSimulation() {
             text: "",
           }),
           status: payload.fallback ? "thinking" : "error",
-          text: `${current[payload.agent]?.text || ""}\n${payload.message}`,
+          text: `${current[payload.agent]?.text || ""}\n${
+            payload.fallback
+              ? "Fallback recovery activated; continuing simulation."
+              : payload.message
+          }`,
         },
       }));
       if (!payload.fallback) {

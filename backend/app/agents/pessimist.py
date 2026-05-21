@@ -56,6 +56,8 @@ The mitigation must be one concrete action the user can take.
             }
         )
 
+    if not isinstance(output, dict):
+        output = fallback_agent_output("pessimistic", briefing)
     await emit_text("pessimist", output.get("final_state", "Pessimistic path mapped."), emit)
     await emit({"event": "agent_status", "agent": "pessimist", "status": "done"})
     return output

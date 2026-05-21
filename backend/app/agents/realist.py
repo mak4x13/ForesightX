@@ -56,6 +56,8 @@ Model the statistically likely path with concrete friction and practical trade-o
             }
         )
 
+    if not isinstance(output, dict):
+        output = fallback_agent_output("realistic", briefing)
     await emit_text("realist", output.get("final_state", "Realistic path mapped."), emit)
     await emit({"event": "agent_status", "agent": "realist", "status": "done"})
     return output

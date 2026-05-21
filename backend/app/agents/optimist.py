@@ -56,6 +56,8 @@ The outcome must be plausible, specific, and not blindly positive.
             }
         )
 
+    if not isinstance(output, dict):
+        output = fallback_agent_output("optimistic", briefing)
     await emit_text("optimist", output.get("final_state", "Optimistic path mapped."), emit)
     await emit({"event": "agent_status", "agent": "optimist", "status": "done"})
     return output

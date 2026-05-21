@@ -28,6 +28,22 @@ def _parse_origins(value: Optional[str]) -> list[str]:
 class Settings:
     groq_api_key: str = field(default_factory=lambda: os.getenv("GROQ_API_KEY", ""))
     gemini_api_key: str = field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
+    groq_model: str = field(
+        default_factory=lambda: os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    )
+    gemini_model: str = field(
+        default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    )
+    gemini_fallback_models: list[str] = field(
+        default_factory=lambda: [
+            model.strip()
+            for model in os.getenv(
+                "GEMINI_FALLBACK_MODELS",
+                "gemini-2.5-flash,gemini-2.0-flash,gemini-flash-latest",
+            ).split(",")
+            if model.strip()
+        ]
+    )
     sentry_dsn: str = field(default_factory=lambda: os.getenv("SENTRY_DSN", ""))
     admin_api_key: str = field(
         default_factory=lambda: os.getenv("ADMIN_API_KEY", "change-me")

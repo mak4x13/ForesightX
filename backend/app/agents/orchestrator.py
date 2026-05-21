@@ -2,7 +2,11 @@ import json
 
 from app.agents.common import Emit, call_gemini_json, emit_text
 from app.models.schemas import SimulationRequest
-from app.tools.decision_tools import analyze_decision_context, fallback_briefing
+from app.tools.decision_tools import (
+    analyze_decision_context,
+    coerce_string_list,
+    fallback_briefing,
+)
 
 
 async def run_orchestrator(payload: SimulationRequest, emit: Emit) -> dict:
@@ -40,13 +44,26 @@ analyze_decision_context result: {json.dumps(tool_result)}
             }
         )
 
-    briefing.setdefault("context", {})
+    if not isinstance(briefing, dict):
+        briefing = fallback_briefing(payload.situation, payload.decision, payload.domain)
+
+    context = briefing.get("context")
+    if not isinstance(context, dict):
+        context = {"summary": str(context or "")}
+    briefing["context"] = context
     briefing["context"].setdefault("domain", payload.domain)
     briefing["context"].setdefault("situation", payload.situation)
     briefing["context"].setdefault("decision", payload.decision)
-    briefing.setdefault("variables", tool_result["variables"])
-    briefing.setdefault("analogies", tool_result["analogies"])
-    briefing.setdefault("constraints", tool_result["constraints"])
+    briefing["variables"] = coerce_string_list(
+        briefing.get("variables"), tool_result["variables"]
+    )
+    briefing["analogies"] = coerce_string_list(
+        briefing.get("analogies"), tool_result["analogies"]
+    )
+    briefing["constraints"] = coerce_string_list(
+        briefing.get("constraints"), tool_result["constraints"]
+    )
+    briefing.pop("_model", None)
 
     await emit_text(
         "orchestrator",

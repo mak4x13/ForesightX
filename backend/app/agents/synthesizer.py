@@ -1,11 +1,13 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from app.agents.common import Emit, call_groq_tool_json, emit_text
+from app.agents.common import Emit, call_groq_json, emit_text
+from app.core.config import settings
 from app.models.schemas import SimulationRequest, SimulationResult
 from app.tools.decision_tools import (
     coerce_probability,
     coerce_string_list,
+    coerce_text,
     fallback_agent_output,
     flag_logical_inconsistency,
     normalize_milestones,
@@ -94,8 +96,8 @@ def _shape_result(
                     optimistic.get("enabling_factors"), []
                 )[:5],
                 "milestones": normalize_milestones(optimistic.get("milestones", [])),
-                "final_state": str(optimistic.get("final_state") or ""),
-                "emotional_tone": str(optimistic.get("emotional_tone") or ""),
+                "final_state": coerce_text(optimistic.get("final_state")),
+                "emotional_tone": coerce_text(optimistic.get("emotional_tone")),
             },
             "realistic": {
                 "probability": probabilities["realistic"],
@@ -105,7 +107,7 @@ def _shape_result(
                 )[:5],
                 "milestones": normalize_milestones(realistic.get("milestones", [])),
                 "trade_offs": coerce_string_list(realistic.get("trade_offs"), [])[:5],
-                "final_state": str(realistic.get("final_state") or ""),
+                "final_state": coerce_text(realistic.get("final_state")),
             },
             "pessimistic": {
                 "probability": probabilities["pessimistic"],
@@ -117,15 +119,15 @@ def _shape_result(
                 "failure_triggers": coerce_string_list(
                     pessimistic.get("failure_triggers"), []
                 )[:5],
-                "final_state": str(pessimistic.get("final_state") or ""),
-                "mitigation": str(pessimistic.get("mitigation") or ""),
+                "final_state": coerce_text(pessimistic.get("final_state")),
+                "mitigation": coerce_text(pessimistic.get("mitigation")),
             },
         },
         "meta": {
             "total_agents": 4,
             "execution_time_ms": execution_time_ms,
-            "model_orchestrator": "gemini-1.5-flash",
-            "model_agents": "llama-3.3-70b-versatile",
+            "model_orchestrator": settings.gemini_model,
+            "model_agents": settings.groq_model,
         },
     }
 
@@ -154,18 +156,15 @@ Use the provided tools to cross-check consistency and normalize probabilities.
 Return JSON with keys probabilities and contradictions. Do not rewrite the outcomes.
 """
     try:
-        synthesis = await call_groq_tool_json(
+        synthesis = await call_groq_json(
             system_prompt=system_prompt,
-            user_payload={"outputs": outputs},
-            tools=TOOLS,
-            tool_handlers={
-                "score_outcome_probability": score_outcome_probability,
-                "flag_logical_inconsistency": flag_logical_inconsistency,
-            },
-            fallback_tool_args={
-                "optimist_out": outputs["optimistic"],
-                "realist_out": outputs["realistic"],
-                "pessimist_out": outputs["pessimistic"],
+            user_payload={
+                "outputs": outputs,
+                "tool_results": {
+                    "probabilities": probabilities,
+                    "contradictions": contradictions,
+                },
+                "instruction": "Return the supplied probabilities and contradictions unless there is an obvious arithmetic or logical issue.",
             },
         )
         if isinstance(synthesis, dict):
