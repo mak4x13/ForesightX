@@ -61,8 +61,16 @@ The concise product and technical documentation is available at `docs/ForesightX
 
 ## Local Setup
 
+Clone the repository:
+
 ```bash
+git clone https://github.com/mak4x13/ForesightX.git
 cd ForesightX
+```
+
+Create the root environment reference if needed:
+
+```bash
 copy .env.example .env
 ```
 

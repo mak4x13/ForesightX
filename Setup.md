@@ -7,6 +7,19 @@
 - Docker Desktop for backend image testing
 - Groq and Google AI Studio API keys for full agent execution
 
+## Clone The Repository
+
+```bash
+git clone https://github.com/mak4x13/ForesightX.git
+cd ForesightX
+```
+
+Optional root environment reference:
+
+```bash
+copy .env.example .env
+```
+
 ## Backend
 
 ```bash
