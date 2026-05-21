@@ -1,4 +1,5 @@
-from app.agents.common import Emit, call_groq_tool_json, emit_text
+from app.agents.common import Emit, call_groq_json, emit_text
+from app.core.config import settings
 from app.tools.decision_tools import fallback_agent_output, generate_milestone_steps
 
 
@@ -38,12 +39,18 @@ Return JSON with keys: probability_score, risk_factors, milestones, failure_trig
 The mitigation must be one concrete action the user can take.
 """
     try:
-        output = await call_groq_tool_json(
+        tool_output = generate_milestone_steps(decision, "pessimistic")
+        output = await call_groq_json(
             system_prompt=system_prompt,
-            user_payload={"briefing": briefing},
-            tools=TOOLS,
-            tool_handlers={"generate_milestone_steps": generate_milestone_steps},
-            fallback_tool_args={"scenario": decision, "tone": "pessimistic"},
+            user_payload={
+                "briefing": briefing,
+                "tool_call": {
+                    "name": "generate_milestone_steps",
+                    "arguments": {"scenario": decision, "tone": "pessimistic"},
+                    "result": tool_output,
+                },
+            },
+            api_key=settings.groq_api_key_pessimist,
         )
     except Exception as exc:
         output = fallback_agent_output("pessimistic", briefing)

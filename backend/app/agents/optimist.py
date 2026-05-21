@@ -1,4 +1,5 @@
-from app.agents.common import Emit, call_groq_tool_json, emit_text
+from app.agents.common import Emit, call_groq_json, emit_text
+from app.core.config import settings
 from app.tools.decision_tools import fallback_agent_output, generate_milestone_steps
 
 
@@ -38,12 +39,18 @@ Return JSON with keys: probability_score, enabling_factors, milestones, final_st
 The outcome must be plausible, specific, and not blindly positive.
 """
     try:
-        output = await call_groq_tool_json(
+        tool_output = generate_milestone_steps(decision, "optimistic")
+        output = await call_groq_json(
             system_prompt=system_prompt,
-            user_payload={"briefing": briefing},
-            tools=TOOLS,
-            tool_handlers={"generate_milestone_steps": generate_milestone_steps},
-            fallback_tool_args={"scenario": decision, "tone": "optimistic"},
+            user_payload={
+                "briefing": briefing,
+                "tool_call": {
+                    "name": "generate_milestone_steps",
+                    "arguments": {"scenario": decision, "tone": "optimistic"},
+                    "result": tool_output,
+                },
+            },
+            api_key=settings.groq_api_key_optimist,
         )
     except Exception as exc:
         output = fallback_agent_output("optimistic", briefing)

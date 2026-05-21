@@ -27,9 +27,31 @@ def _parse_origins(value: Optional[str]) -> list[str]:
 @dataclass(frozen=True)
 class Settings:
     groq_api_key: str = field(default_factory=lambda: os.getenv("GROQ_API_KEY", ""))
+    groq_api_key_optimist: str = field(
+        default_factory=lambda: os.getenv("GROQ_API_KEY_OPTIMIST", "")
+    )
+    groq_api_key_realist: str = field(
+        default_factory=lambda: os.getenv("GROQ_API_KEY_REALIST", "")
+    )
+    groq_api_key_pessimist: str = field(
+        default_factory=lambda: os.getenv("GROQ_API_KEY_PESSIMIST", "")
+    )
+    groq_api_key_synthesizer: str = field(
+        default_factory=lambda: os.getenv("GROQ_API_KEY_SYNTHESIZER", "")
+    )
     gemini_api_key: str = field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
     groq_model: str = field(
         default_factory=lambda: os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    )
+    groq_fallback_models: list[str] = field(
+        default_factory=lambda: [
+            model.strip()
+            for model in os.getenv(
+                "GROQ_FALLBACK_MODELS",
+                "llama-3.1-8b-instant",
+            ).split(",")
+            if model.strip()
+        ]
     )
     gemini_model: str = field(
         default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-2.5-flash")

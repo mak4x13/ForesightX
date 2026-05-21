@@ -81,8 +81,13 @@ Open `http://localhost:5173`.
 | Variable | App | Required | Purpose |
 | --- | --- | --- | --- |
 | `GROQ_API_KEY` | Backend | yes for AI | Groq agent calls |
+| `GROQ_API_KEY_OPTIMIST` | Backend | no | Optional dedicated key for the Optimist agent |
+| `GROQ_API_KEY_REALIST` | Backend | no | Optional dedicated key for the Realist agent |
+| `GROQ_API_KEY_PESSIMIST` | Backend | no | Optional dedicated key for the Pessimist agent |
+| `GROQ_API_KEY_SYNTHESIZER` | Backend | no | Optional dedicated key for the Synthesizer agent |
 | `GEMINI_API_KEY` | Backend | yes for AI | Gemini orchestrator calls |
 | `GROQ_MODEL` | Backend | no | Defaults to `llama-3.3-70b-versatile` |
+| `GROQ_FALLBACK_MODELS` | Backend | no | Comma-separated Groq retry models, defaults to `llama-3.1-8b-instant` |
 | `GEMINI_MODEL` | Backend | no | Defaults to `gemini-2.5-flash` |
 | `GEMINI_FALLBACK_MODELS` | Backend | no | Comma-separated Gemini retry models |
 | `SENTRY_DSN` | Backend | no | Backend exception monitoring |

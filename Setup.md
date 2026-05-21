@@ -21,7 +21,13 @@ uvicorn app.main:app --reload --port 7860
 For local AI calls, `backend/.env` should include:
 
 ```env
+GROQ_API_KEY=your-shared-groq-key
+GROQ_API_KEY_OPTIMIST=
+GROQ_API_KEY_REALIST=
+GROQ_API_KEY_PESSIMIST=
+GROQ_API_KEY_SYNTHESIZER=
 GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_FALLBACK_MODELS=llama-3.1-8b-instant
 GEMINI_MODEL=gemini-2.5-flash
 GEMINI_FALLBACK_MODELS=gemini-2.5-flash,gemini-2.0-flash,gemini-flash-latest
 ```

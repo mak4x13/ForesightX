@@ -16,6 +16,14 @@ GROQ_MODEL = settings.groq_model
 GEMINI_MODEL = settings.gemini_model
 
 
+def _groq_models() -> list[str]:
+    models = [settings.groq_model]
+    for model in settings.groq_fallback_models:
+        if model not in models:
+            models.append(model)
+    return models
+
+
 async def emit_text(agent: str, text: str, emit: Emit, delay: float = 0.006) -> None:
     if not isinstance(text, str):
         text = json.dumps(text)
@@ -87,12 +95,14 @@ async def call_groq_tool_json(
     tools: list[dict[str, Any]],
     tool_handlers: dict[str, Callable[..., Any]],
     fallback_tool_args: dict[str, Any],
+    api_key: str = "",
 ) -> dict[str, Any]:
-    if not settings.groq_api_key:
+    key = api_key or settings.groq_api_key
+    if not key:
         raise RuntimeError("GROQ_API_KEY is not configured.")
 
     headers = {
-        "Authorization": f"Bearer {settings.groq_api_key}",
+        "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
     }
     messages: list[dict[str, Any]] = [
@@ -101,17 +111,21 @@ async def call_groq_tool_json(
     ]
 
     async with httpx.AsyncClient(timeout=60) as client:
-        first = await client.post(
-            GROQ_URL,
-            headers=headers,
-            json={
-                "model": GROQ_MODEL,
-                "messages": messages,
-                "tools": tools,
-                "tool_choice": "auto",
-                "temperature": 0.35,
-            },
-        )
+        first = None
+        for model in _groq_models():
+            first = await client.post(
+                GROQ_URL,
+                headers=headers,
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "tools": tools,
+                    "tool_choice": "auto",
+                    "temperature": 0.35,
+                },
+            )
+            if first.status_code != 429:
+                break
         first.raise_for_status()
         first_message = first.json()["choices"][0]["message"]
         messages.append(first_message)
@@ -142,7 +156,7 @@ async def call_groq_tool_json(
             )
 
         final_payload = {
-            "model": GROQ_MODEL,
+            "model": settings.groq_model,
             "messages": messages
             + [
                 {
@@ -153,25 +167,33 @@ async def call_groq_tool_json(
             "temperature": 0.35,
             "response_format": {"type": "json_object"},
         }
-        final = await client.post(GROQ_URL, headers=headers, json=final_payload)
-        if final.status_code == 400:
-            final_payload.pop("response_format", None)
+        final = None
+        for model in _groq_models():
+            final_payload["model"] = model
             final = await client.post(GROQ_URL, headers=headers, json=final_payload)
+            if final.status_code == 400:
+                retry_payload = {key: value for key, value in final_payload.items() if key != "response_format"}
+                final = await client.post(GROQ_URL, headers=headers, json=retry_payload)
+            if final.status_code != 429:
+                break
         final.raise_for_status()
         content = final.json()["choices"][0]["message"]["content"]
         return extract_json_object(content)
 
 
-async def call_groq_json(*, system_prompt: str, user_payload: dict[str, Any]) -> dict[str, Any]:
-    if not settings.groq_api_key:
+async def call_groq_json(
+    *, system_prompt: str, user_payload: dict[str, Any], api_key: str = ""
+) -> dict[str, Any]:
+    key = api_key or settings.groq_api_key
+    if not key:
         raise RuntimeError("GROQ_API_KEY is not configured.")
 
     headers = {
-        "Authorization": f"Bearer {settings.groq_api_key}",
+        "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
     }
     payload = {
-        "model": GROQ_MODEL,
+        "model": settings.groq_model,
         "messages": [
             {"role": "system", "content": system_prompt},
             {
@@ -185,10 +207,15 @@ async def call_groq_json(*, system_prompt: str, user_payload: dict[str, Any]) ->
     }
 
     async with httpx.AsyncClient(timeout=60) as client:
-        response = await client.post(GROQ_URL, headers=headers, json=payload)
-        if response.status_code == 400:
-            payload.pop("response_format", None)
+        response = None
+        for model in _groq_models():
+            payload["model"] = model
             response = await client.post(GROQ_URL, headers=headers, json=payload)
+            if response.status_code == 400:
+                retry_payload = {key: value for key, value in payload.items() if key != "response_format"}
+                response = await client.post(GROQ_URL, headers=headers, json=retry_payload)
+            if response.status_code != 429:
+                break
         response.raise_for_status()
         content = response.json()["choices"][0]["message"]["content"]
         return extract_json_object(content)

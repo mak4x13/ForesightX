@@ -166,6 +166,7 @@ Return JSON with keys probabilities and contradictions. Do not rewrite the outco
                 },
                 "instruction": "Return the supplied probabilities and contradictions unless there is an obvious arithmetic or logical issue.",
             },
+            api_key=settings.groq_api_key_synthesizer,
         )
         if isinstance(synthesis, dict):
             probabilities = synthesis.get("probabilities", probabilities)
