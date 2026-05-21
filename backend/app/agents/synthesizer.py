@@ -4,6 +4,9 @@ from uuid import uuid4
 from app.agents.common import Emit, call_groq_tool_json, emit_text
 from app.models.schemas import SimulationRequest, SimulationResult
 from app.tools.decision_tools import (
+    coerce_probability,
+    coerce_string_list,
+    fallback_agent_output,
     flag_logical_inconsistency,
     normalize_milestones,
     score_outcome_probability,
@@ -48,9 +51,37 @@ def _shape_result(
     probabilities: dict,
     execution_time_ms: int,
 ) -> dict:
-    optimistic = outputs["optimistic"]
-    realistic = outputs["realistic"]
-    pessimistic = outputs["pessimistic"]
+    briefing = {
+        "context": {
+            "decision": payload.decision,
+            "situation": payload.situation,
+            "domain": payload.domain,
+        }
+    }
+    optimistic = outputs.get("optimistic")
+    if not isinstance(optimistic, dict):
+        optimistic = {}
+    optimistic = {**fallback_agent_output("optimistic", briefing), **optimistic}
+
+    realistic = outputs.get("realistic")
+    if not isinstance(realistic, dict):
+        realistic = {}
+    realistic = {**fallback_agent_output("realistic", briefing), **realistic}
+
+    pessimistic = outputs.get("pessimistic")
+    if not isinstance(pessimistic, dict):
+        pessimistic = {}
+    pessimistic = {**fallback_agent_output("pessimistic", briefing), **pessimistic}
+
+    if not isinstance(probabilities, dict):
+        probabilities = {}
+    probabilities = {
+        "optimistic": coerce_probability(probabilities.get("optimistic"), 35),
+        "realistic": coerce_probability(probabilities.get("realistic"), 45),
+        "pessimistic": coerce_probability(probabilities.get("pessimistic"), 20),
+    }
+    drift = 100 - sum(probabilities.values())
+    probabilities["realistic"] += drift
     return {
         "simulation_id": str(uuid4()),
         "timestamp": datetime.now(timezone.utc),
@@ -59,27 +90,35 @@ def _shape_result(
             "optimistic": {
                 "probability": probabilities["optimistic"],
                 "label": "OPTIMISTIC",
-                "enabling_factors": optimistic.get("enabling_factors", [])[:5],
+                "enabling_factors": coerce_string_list(
+                    optimistic.get("enabling_factors"), []
+                )[:5],
                 "milestones": normalize_milestones(optimistic.get("milestones", [])),
-                "final_state": optimistic.get("final_state", ""),
-                "emotional_tone": optimistic.get("emotional_tone", ""),
+                "final_state": str(optimistic.get("final_state") or ""),
+                "emotional_tone": str(optimistic.get("emotional_tone") or ""),
             },
             "realistic": {
                 "probability": probabilities["realistic"],
                 "label": "REALISTIC",
-                "friction_points": realistic.get("friction_points", [])[:5],
+                "friction_points": coerce_string_list(
+                    realistic.get("friction_points"), []
+                )[:5],
                 "milestones": normalize_milestones(realistic.get("milestones", [])),
-                "trade_offs": realistic.get("trade_offs", [])[:5],
-                "final_state": realistic.get("final_state", ""),
+                "trade_offs": coerce_string_list(realistic.get("trade_offs"), [])[:5],
+                "final_state": str(realistic.get("final_state") or ""),
             },
             "pessimistic": {
                 "probability": probabilities["pessimistic"],
                 "label": "PESSIMISTIC",
-                "risk_factors": pessimistic.get("risk_factors", [])[:5],
+                "risk_factors": coerce_string_list(
+                    pessimistic.get("risk_factors"), []
+                )[:5],
                 "milestones": normalize_milestones(pessimistic.get("milestones", [])),
-                "failure_triggers": pessimistic.get("failure_triggers", [])[:5],
-                "final_state": pessimistic.get("final_state", ""),
-                "mitigation": pessimistic.get("mitigation", ""),
+                "failure_triggers": coerce_string_list(
+                    pessimistic.get("failure_triggers"), []
+                )[:5],
+                "final_state": str(pessimistic.get("final_state") or ""),
+                "mitigation": str(pessimistic.get("mitigation") or ""),
             },
         },
         "meta": {
@@ -129,8 +168,9 @@ Return JSON with keys probabilities and contradictions. Do not rewrite the outco
                 "pessimist_out": outputs["pessimistic"],
             },
         )
-        probabilities = synthesis.get("probabilities", probabilities)
-        contradictions = synthesis.get("contradictions", contradictions)
+        if isinstance(synthesis, dict):
+            probabilities = synthesis.get("probabilities", probabilities)
+            contradictions = synthesis.get("contradictions", contradictions)
         if set(probabilities) != {"optimistic", "realistic", "pessimistic"}:
             probabilities = score_outcome_probability(
                 outputs["optimistic"], outputs["realistic"], outputs["pessimistic"]
@@ -145,8 +185,40 @@ Return JSON with keys probabilities and contradictions. Do not rewrite the outco
             }
         )
 
-    result = _shape_result(payload, outputs, probabilities, execution_time_ms)
-    validated = SimulationResult.model_validate(result).model_dump(mode="json")
+    try:
+        result = _shape_result(payload, outputs, probabilities, execution_time_ms)
+        validated = SimulationResult.model_validate(result).model_dump(mode="json")
+    except Exception as exc:
+        await emit(
+            {
+                "event": "error",
+                "agent": "synthesizer",
+                "message": f"Recovered from malformed model output: {exc}",
+                "fallback": True,
+            }
+        )
+        safe_outputs = {
+            "optimistic": fallback_agent_output(
+                "optimistic", {"context": {"decision": payload.decision}}
+            ),
+            "realistic": fallback_agent_output(
+                "realistic", {"context": {"decision": payload.decision}}
+            ),
+            "pessimistic": fallback_agent_output(
+                "pessimistic", {"context": {"decision": payload.decision}}
+            ),
+        }
+        result = _shape_result(
+            payload,
+            safe_outputs,
+            score_outcome_probability(
+                safe_outputs["optimistic"],
+                safe_outputs["realistic"],
+                safe_outputs["pessimistic"],
+            ),
+            execution_time_ms,
+        )
+        validated = SimulationResult.model_validate(result).model_dump(mode="json")
     if contradictions:
         validated["meta"]["contradictions"] = contradictions
 

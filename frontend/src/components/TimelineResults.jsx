@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 
 import { TimelineCard } from "./TimelineCard.jsx";
 
-export function TimelineResults({ result, onAgain, onHistory }) {
+export function TimelineResults({ result = null, onAgain, onHistory }) {
   if (!result) {
     return null;
   }
@@ -38,8 +38,4 @@ TimelineResults.propTypes = {
   onAgain: PropTypes.func.isRequired,
   onHistory: PropTypes.func.isRequired,
   result: PropTypes.object,
-};
-
-TimelineResults.defaultProps = {
-  result: null,
 };

@@ -7,6 +7,7 @@ from app.agents.pessimist import run_pessimist
 from app.agents.realist import run_realist
 from app.agents.synthesizer import run_synthesizer
 from app.models.schemas import SimulationRequest
+from app.tools.decision_tools import fallback_agent_output
 
 
 async def run_pipeline(payload: SimulationRequest):
@@ -38,13 +39,52 @@ async def run_pipeline(payload: SimulationRequest):
     while not queue.empty():
         yield await queue.get()
 
-    outputs = {name: task.result() for name, task in tasks.items()}
+    outputs = {}
+    for name, task in tasks.items():
+        try:
+            output = task.result()
+            if not isinstance(output, dict):
+                raise TypeError(f"{name} returned a non-object output.")
+            outputs[name] = output
+        except Exception as exc:
+            tone = {
+                "optimistic": "optimistic",
+                "realistic": "realistic",
+                "pessimistic": "pessimistic",
+            }[name]
+            await emit(
+                {
+                    "event": "error",
+                    "agent": name.replace("istic", "ist")
+                    if name == "optimistic"
+                    else name,
+                    "message": f"Recovered from agent failure: {exc}",
+                    "fallback": True,
+                }
+            )
+            outputs[name] = fallback_agent_output(tone, briefing)
     await emit({"event": "pipeline_stage", "stage": "synthesis", "progress": 80})
     while not queue.empty():
         yield await queue.get()
 
     execution_time_ms = int((perf_counter() - started) * 1000)
-    result = await run_synthesizer(payload, outputs, execution_time_ms, emit)
+    try:
+        result = await run_synthesizer(payload, outputs, execution_time_ms, emit)
+    except Exception as exc:
+        await emit(
+            {
+                "event": "error",
+                "agent": "synthesizer",
+                "message": f"Recovered from synthesis failure: {exc}",
+                "fallback": True,
+            }
+        )
+        safe_outputs = {
+            "optimistic": fallback_agent_output("optimistic", briefing),
+            "realistic": fallback_agent_output("realistic", briefing),
+            "pessimistic": fallback_agent_output("pessimistic", briefing),
+        }
+        result = await run_synthesizer(payload, safe_outputs, execution_time_ms, emit)
     while not queue.empty():
         yield await queue.get()
 

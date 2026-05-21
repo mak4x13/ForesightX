@@ -45,7 +45,7 @@ const nodeConfig = [
   },
 ];
 
-export function AgentVisualizer({ agents, progress, compact }) {
+export function AgentVisualizer({ agents, progress, compact = false }) {
   return (
     <section className={`mx-auto w-full max-w-6xl transition duration-page ${compact ? "py-3" : "py-8"}`}>
       <div className="mb-5 h-2 overflow-hidden rounded-full border border-border bg-surface">
@@ -93,8 +93,4 @@ AgentVisualizer.propTypes = {
   agents: PropTypes.object.isRequired,
   compact: PropTypes.bool,
   progress: PropTypes.number.isRequired,
-};
-
-AgentVisualizer.defaultProps = {
-  compact: false,
 };

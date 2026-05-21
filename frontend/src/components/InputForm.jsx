@@ -9,7 +9,7 @@ const domains = [
   { label: "Life", icon: Sprout },
 ];
 
-export function InputForm({ onSubmit, isLoading, compact }) {
+export function InputForm({ onSubmit, isLoading = false, compact = false }) {
   const [form, setForm] = useState({
     situation: "",
     decision: "",
@@ -103,9 +103,4 @@ InputForm.propTypes = {
   compact: PropTypes.bool,
   isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
-};
-
-InputForm.defaultProps = {
-  compact: false,
-  isLoading: false,
 };

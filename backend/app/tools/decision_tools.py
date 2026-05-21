@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 
 def _keywords(text: str, limit: int = 8) -> list[str]:
@@ -50,13 +51,51 @@ def analyze_decision_context(situation: str, decision: str, domain: str) -> dict
     }
 
 
-def normalize_milestones(raw_steps: list[dict]) -> list[dict]:
+def coerce_string_list(value, fallback: Optional[list[str]] = None) -> list[str]:
+    if value is None:
+        return fallback or []
+    if isinstance(value, str):
+        return [value] if value.strip() else fallback or []
+    if isinstance(value, list):
+        items = []
+        for item in value:
+            if isinstance(item, dict):
+                text = item.get("description") or item.get("text") or item.get("name")
+                if text:
+                    items.append(str(text))
+            elif item is not None:
+                items.append(str(item))
+        return items or fallback or []
+    return fallback or [str(value)]
+
+
+def coerce_probability(value, fallback: int) -> int:
+    try:
+        if isinstance(value, str):
+            value = value.replace("%", "").strip()
+        return max(0, min(100, round(float(value))))
+    except (TypeError, ValueError):
+        return fallback
+
+
+def normalize_milestones(raw_steps) -> list[dict]:
+    if isinstance(raw_steps, str):
+        raw_steps = [{"description": raw_steps, "timeframe": "TBD"}]
+    if not isinstance(raw_steps, list):
+        raw_steps = []
+
     milestones = []
     for index, item in enumerate(raw_steps[:5], start=1):
+        if isinstance(item, str):
+            item = {"description": item, "timeframe": "TBD"}
+        if not isinstance(item, dict):
+            item = {}
         milestones.append(
             {
-                "step": int(item.get("step", index)),
-                "description": str(item.get("description", ""))[:280],
+                "step": coerce_probability(item.get("step", index), index),
+                "description": str(item.get("description") or item.get("text") or "")[
+                    :280
+                ],
                 "timeframe": str(item.get("timeframe", "TBD"))[:80],
             }
         )
@@ -95,15 +134,21 @@ def generate_milestone_steps(scenario: str, tone: str) -> list[dict]:
 def score_outcome_probability(
     optimist_out: dict, realist_out: dict, pessimist_out: dict
 ) -> dict:
+    optimist_out = optimist_out if isinstance(optimist_out, dict) else {}
+    realist_out = realist_out if isinstance(realist_out, dict) else {}
+    pessimist_out = pessimist_out if isinstance(pessimist_out, dict) else {}
     raw = {
-        "optimistic": int(
-            optimist_out.get("probability_score", optimist_out.get("probability", 35))
+        "optimistic": coerce_probability(
+            optimist_out.get("probability_score", optimist_out.get("probability", 35)),
+            35,
         ),
-        "realistic": int(
-            realist_out.get("probability_score", realist_out.get("probability", 45))
+        "realistic": coerce_probability(
+            realist_out.get("probability_score", realist_out.get("probability", 45)),
+            45,
         ),
-        "pessimistic": int(
-            pessimist_out.get("probability_score", pessimist_out.get("probability", 20))
+        "pessimistic": coerce_probability(
+            pessimist_out.get("probability_score", pessimist_out.get("probability", 20)),
+            20,
         ),
     }
     total = max(sum(max(value, 0) for value in raw.values()), 1)
@@ -116,6 +161,9 @@ def score_outcome_probability(
 def flag_logical_inconsistency(outputs: list[dict]) -> list[str]:
     issues = []
     for output in outputs:
+        if not isinstance(output, dict):
+            issues.append("One outcome was not returned as an object.")
+            continue
         if not output.get("milestones"):
             issues.append("One outcome is missing milestone steps.")
         if not output.get("final_state"):

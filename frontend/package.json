@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "dev:open": "vite --host 127.0.0.1 --port 5173 --strictPort --open",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint ."

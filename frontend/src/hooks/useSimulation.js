@@ -35,8 +35,78 @@ const initialAgents = {
   },
 };
 
+async function consumeSseWithFetch(url, applyEvent) {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "text/event-stream",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`/simulate/stream returned ${response.status}`);
+  }
+
+  if (!response.body) {
+    const text = await response.text();
+    text
+      .split("\n\n")
+      .map((block) => block.trim())
+      .filter(Boolean)
+      .forEach((block) => {
+        const data = block
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.replace(/^data:\s?/, ""))
+          .join("");
+        if (data) {
+          applyEvent(JSON.parse(data));
+        }
+      });
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    const blocks = buffer.split("\n\n");
+    buffer = blocks.pop() || "";
+
+    for (const block of blocks) {
+      const data = block
+        .split("\n")
+        .filter((line) => line.startsWith("data:"))
+        .map((line) => line.replace(/^data:\s?/, ""))
+        .join("");
+      if (data) {
+        applyEvent(JSON.parse(data));
+      }
+    }
+  }
+
+  if (buffer.trim()) {
+    const data = buffer
+      .split("\n")
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.replace(/^data:\s?/, ""))
+      .join("");
+    if (data) {
+      applyEvent(JSON.parse(data));
+    }
+  }
+}
+
 export function useSimulation() {
   const sourceRef = useRef(null);
+  const terminalEventRef = useRef(false);
+  const fallbackStartedRef = useRef(false);
   const [status, setStatus] = useState("idle");
   const [agents, setAgents] = useState(initialAgents);
   const [result, setResult] = useState(null);
@@ -44,6 +114,8 @@ export function useSimulation() {
   const [error, setError] = useState("");
 
   const reset = useCallback(() => {
+    terminalEventRef.current = false;
+    fallbackStartedRef.current = false;
     sourceRef.current?.close();
     sourceRef.current = null;
     setStatus("idle");
@@ -103,6 +175,7 @@ export function useSimulation() {
     }
 
     if (payload.event === "simulation_complete") {
+      terminalEventRef.current = true;
       setProgress(100);
       setResult(payload.result);
       setStatus("complete");
@@ -115,7 +188,8 @@ export function useSimulation() {
     (input) => {
       reset();
       setStatus("running");
-      const source = new EventSource(simulateStreamUrl(input));
+      const url = simulateStreamUrl(input);
+      const source = new EventSource(url);
       sourceRef.current = source;
 
       source.onmessage = (message) => {
@@ -128,9 +202,26 @@ export function useSimulation() {
       };
 
       source.onerror = () => {
-        setError("The simulation stream disconnected.");
-        setStatus((current) => (current === "complete" ? current : "error"));
-        source.close();
+        setTimeout(() => {
+          if (terminalEventRef.current || sourceRef.current !== source) {
+            return;
+          }
+          source.close();
+          sourceRef.current = null;
+          if (fallbackStartedRef.current) {
+            return;
+          }
+          fallbackStartedRef.current = true;
+          consumeSseWithFetch(url, applyEvent).catch((fallbackError) => {
+            if (terminalEventRef.current) {
+              return;
+            }
+            setError(
+              `${fallbackError.message}. Confirm the backend is running on VITE_BACKEND_URL and that /simulate/stream returns 200.`
+            );
+            setStatus((current) => (current === "complete" ? current : "error"));
+          });
+        }, 250);
       };
     },
     [applyEvent, reset]

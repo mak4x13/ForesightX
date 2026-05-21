@@ -10,7 +10,9 @@ npm install
 npm run dev
 ```
 
-The app reads `VITE_BACKEND_URL` from `.env`; default local backend URL is `http://localhost:7860`.
+The app reads `VITE_BACKEND_URL` from `.env`; default local backend URL is `http://localhost:7860`. The dev server is pinned to `http://127.0.0.1:5173` with `--strictPort` so backend CORS stays predictable.
+
+Vite uses `@vitejs/plugin-react` through `vite.config.js`, so JSX runs with the automatic React transform.
 
 ## Component Tree
 

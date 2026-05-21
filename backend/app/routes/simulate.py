@@ -4,7 +4,9 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import StreamingResponse
 
 from app.agents.pipeline import run_pipeline
+from app.core.config import settings
 from app.core.limiter import limiter
+from app.core.metrics import mark_error
 from app.models.schemas import SimulationRequest
 
 
@@ -24,12 +26,15 @@ async def simulate(request: Request, payload: SimulationRequest):
         try:
             async for event in run_pipeline(payload):
                 yield _sse(event)
-        except Exception:
+        except Exception as exc:
+            mark_error()
             yield _sse(
                 {
                     "event": "error",
                     "agent": "pipeline",
-                    "message": "Simulation failed before completion.",
+                    "message": str(exc)
+                    if settings.environment == "development"
+                    else "Simulation failed before completion.",
                     "fallback": False,
                 }
             )
@@ -52,12 +57,15 @@ async def simulate_stream(
         try:
             async for event in run_pipeline(payload):
                 yield _sse(event)
-        except Exception:
+        except Exception as exc:
+            mark_error()
             yield _sse(
                 {
                     "event": "error",
                     "agent": "pipeline",
-                    "message": "Simulation failed before completion.",
+                    "message": str(exc)
+                    if settings.environment == "development"
+                    else "Simulation failed before completion.",
                     "fallback": False,
                 }
             )

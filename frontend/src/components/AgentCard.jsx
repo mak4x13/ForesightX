@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-export function AgentCard({ name, status, text }) {
+export function AgentCard({ name, status, text = "" }) {
   const tone =
     status === "done" ? "bg-optimist" : status === "error" ? "bg-pessimist" : "bg-amber";
 
@@ -24,8 +24,4 @@ AgentCard.propTypes = {
   name: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
   text: PropTypes.string,
-};
-
-AgentCard.defaultProps = {
-  text: "",
 };

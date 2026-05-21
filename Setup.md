@@ -26,6 +26,8 @@ npm install
 npm run dev
 ```
 
+Open `http://127.0.0.1:5173`. If port `5173` is busy, stop the existing Vite process first; the frontend is intentionally strict about this port so the backend CORS allowlist stays predictable.
+
 ## Smoke Tests
 
 ```bash
