@@ -55,6 +55,10 @@ flowchart LR
 - Local session history with `localStorage`; no database or auth needed for v1.
 - Sentry hooks and admin health route included from the first build.
 
+## Documentation
+
+The concise product and technical documentation is available at `docs/ForesightX_Documentation.pdf`.
+
 ## Local Setup
 
 ```bash

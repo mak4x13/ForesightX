@@ -1,0 +1,512 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 5068 >>
+stream
+BT
+/F2 17 Tf
+1 0 0 1 46.00 748.00 Tm
+(ForesightX Product and Technical Documentation) Tj
+/F2 8.6 Tf
+1 0 0 1 46.00 718.00 Tm
+(Version: 2.0) Tj
+/F2 8.6 Tf
+1 0 0 1 46.00 703.50 Tm
+(Team: VizMinds) Tj
+/F2 8.6 Tf
+1 0 0 1 46.00 689.00 Tm
+(Competition: CreateX) Tj
+/F2 8.6 Tf
+1 0 0 1 46.00 674.50 Tm
+(Date: May 21, 2026) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 656.00 Tm
+(1. Executive Summary) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 635.00 Tm
+(ForesightX is a cinematic decision simulation platform that helps a user explore the possible) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 624.90 Tm
+(consequences of an important choice before acting. The user enters a current situation, a) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 614.80 Tm
+(decision under consideration, and a domain. The system then produces three future timelines:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 604.70 Tm
+(optimistic, realistic, and pessimistic. Each timeline includes a probability, milestones, final) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 594.60 Tm
+(state, and actionable factors.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 580.50 Tm
+(The product is designed for hackathon judging and live demonstration. Its primary value is) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 570.40 Tm
+(clarity under uncertainty. Instead of presenting a static answer, ForesightX shows a visible) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 560.30 Tm
+(reasoning pipeline, streams progress in real time, and gives users tools to interrogate each) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 550.20 Tm
+(future branch after the simulation completes.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 536.10 Tm
+(Version 2 expands the original working system with follow-up analysis, milestone drill-down,) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 526.00 Tm
+(what-if reruns, shareable result cards, a refined responsive layout, and improved deployment) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 515.90 Tm
+(documentation.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 497.80 Tm
+(2. Product Scope) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 476.80 Tm
+(Core user flow:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 462.70 Tm
+(1. The user enters a situation, decision, and domain.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 452.60 Tm
+(2. The simulation pipeline streams visible agent activity.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 442.50 Tm
+(3. Three future outcomes are shown in a structured results view.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 432.40 Tm
+(4. The user can ask follow-up questions about the completed simulation.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 422.30 Tm
+(5. The user can expand individual milestone steps for deeper context.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 412.20 Tm
+(6. The user can modify one variable and rerun the outcome agents without repeating the full) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 402.10 Tm
+(orchestration stage.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 392.00 Tm
+(7. The user can export a branded PNG summary of the result.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 377.90 Tm
+(Primary users:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 363.80 Tm
+(Startup founders, students, product teams, career planners, and decision makers who need to) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 353.70 Tm
+(compare possible paths quickly.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 339.60 Tm
+(Out of scope for the current version:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 325.50 Tm
+(Persistent cloud history, user accounts, billing, team workspaces, and Supabase-backed data) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 315.40 Tm
+(storage.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 297.30 Tm
+(3. System Architecture) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 276.30 Tm
+(Frontend:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 262.20 Tm
+(React with Vite provides the interactive user experience. Tailwind CSS implements the design) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 252.10 Tm
+(system using custom tokens for color, typography, spacing, and animation. The frontend consumes) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 242.00 Tm
+(Server-Sent Events for live updates and stores the last five simulations in localStorage.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 227.90 Tm
+(Backend:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 213.80 Tm
+(FastAPI provides the simulation API, streaming endpoints, validation, rate limiting, CORS,) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 203.70 Tm
+(Sentry initialization, and an admin health endpoint. The backend is containerized with Docker) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 193.60 Tm
+(for deployment to a Hugging Face Docker Space.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 179.50 Tm
+(Agent pipeline:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 165.40 Tm
+(1. Orchestrator prepares a structured briefing from the user scenario.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 155.30 Tm
+(2. Optimist, Realist, and Pessimist agents run in parallel.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 145.20 Tm
+(3. Synthesizer normalizes probabilities and formats the final response.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 135.10 Tm
+(4. Analyst handles follow-up questions after the simulation.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 125.00 Tm
+(5. Milestone expansion provides short explanations for clicked timeline steps.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 110.90 Tm
+(Data storage:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 96.80 Tm
+(The current version does not require a database. Session history is stored locally in the) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 86.70 Tm
+(browser with a maximum of five entries.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 68.60 Tm
+(4. Feature Summary) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Length 5001 >>
+stream
+BT
+/F1 8.4 Tf
+1 0 0 1 46.00 748.00 Tm
+(Decision input:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 733.90 Tm
+(The landing screen includes a starfield background, product wordmark, typewriter tagline, two) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 723.80 Tm
+(structured text areas, character counters, and a domain selector.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 709.70 Tm
+(Live simulation:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 695.60 Tm
+(The simulation screen shows a visual pipeline with status indicators, progress, and streamed) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 685.50 Tm
+(agent text. Desktop uses a graph layout. Mobile uses stacked cards to preserve readability.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 671.40 Tm
+(Results dashboard:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 657.30 Tm
+(The desktop results view keeps the page fixed in a single viewport. Outcome cards scroll) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 647.20 Tm
+(internally. Mobile stacks the cards and allows page scroll so no controls are hidden.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 633.10 Tm
+(Follow-up analysis:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 619.00 Tm
+(Users can ask concise follow-up questions after a simulation. Responses stream into a) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 608.90 Tm
+(collapsible panel and are appended as separate analysis blocks.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 594.80 Tm
+(Milestone drill-down:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 580.70 Tm
+(Each timeline milestone can be expanded inline. The first click streams a short explanation from) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 570.60 Tm
+(the backend. The explanation is cached client-side so repeated opens do not call the API again.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 556.50 Tm
+(What-if branch:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 542.40 Tm
+(Each outcome card includes a what-if input. The user changes one variable, and the backend) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 532.30 Tm
+(reruns only the three outcome agents plus synthesis. The triggering card shows a modified badge.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 518.20 Tm
+(Share card:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 504.10 Tm
+(The results screen can export a branded PNG snapshot with the ForesightX title, input summary,) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 494.00 Tm
+(timestamp, domain, and all three outcome cards.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 475.90 Tm
+(5. API Reference) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 454.90 Tm
+(POST /simulate) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 440.80 Tm
+(Streams the full simulation result through Server-Sent Events.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 426.70 Tm
+(GET /simulate/stream) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 412.60 Tm
+(Native EventSource-compatible simulation stream used by the frontend.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 398.50 Tm
+(POST /simulate/followup) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 384.40 Tm
+(Streams a follow-up analysis for a completed simulation. Request body includes a question, full) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 374.30 Tm
+(simulation context, and session identifier.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 360.20 Tm
+(POST /simulate/expand-milestone) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 346.10 Tm
+(Streams a two to three sentence explanation for a selected milestone. Request body includes) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 336.00 Tm
+(milestone text, outcome context, and outcome type.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 321.90 Tm
+(POST /simulate/whatif) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 307.80 Tm
+(Streams a partial rerun using the original briefing plus one changed variable. The orchestrator) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 297.70 Tm
+(stage is skipped.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 283.60 Tm
+(GET /admin/health) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 269.50 Tm
+(Returns uptime, request count, last error timestamp, and Sentry status. Protected by the) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 259.40 Tm
+(X-Admin-Key header.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 241.30 Tm
+(6. Security, Reliability, and Monitoring) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 220.30 Tm
+(Input validation:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 206.20 Tm
+(All backend request bodies use Pydantic models with length limits and explicit field types.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 192.10 Tm
+(Rate limiting:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 178.00 Tm
+(The simulation endpoint is limited to 10 requests per minute per IP. Follow-up is limited to 8) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 167.90 Tm
+(requests per minute. Milestone expansion is limited to 15 requests per minute. What-if reruns) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 157.80 Tm
+(are limited to 6 requests per minute. Admin health is limited to 5 requests per minute.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 143.70 Tm
+(CORS:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 129.60 Tm
+(The backend reads allowed origins from the ALLOWED_ORIGINS environment variable. Production) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 119.50 Tm
+(configuration must use the deployed Vercel URL and must not use a wildcard origin.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 105.40 Tm
+(Secrets:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 91.30 Tm
+(No secrets are stored in the repository. Frontend variables use the VITE prefix. Backend secrets) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 81.20 Tm
+(are configured through local .env files or Hugging Face Space secrets.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 67.10 Tm
+(Monitoring:) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Length 4415 >>
+stream
+BT
+/F1 8.4 Tf
+1 0 0 1 46.00 748.00 Tm
+(Sentry is initialized in both frontend and backend. The backend also exposes an admin health) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 737.90 Tm
+(route for operational checks.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 723.80 Tm
+(Failure handling:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 709.70 Tm
+(The backend returns structured stream errors and uses fallback behavior where possible. The) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 699.60 Tm
+(frontend has an error boundary and designed error states.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 681.50 Tm
+(7. Deployment Guide) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 660.50 Tm
+(Frontend deployment:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 646.40 Tm
+(The frontend deploys to Vercel from the frontend directory. Required environment variable:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 636.30 Tm
+(VITE_BACKEND_URL. Optional variable: VITE_SENTRY_DSN. After GitHub receives a new commit, Vercel) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 626.20 Tm
+(automatically rebuilds and deploys.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 612.10 Tm
+(Backend deployment:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 598.00 Tm
+(The backend deploys to the existing public Hugging Face Docker Space. Required secrets are) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 587.90 Tm
+(GROQ_API_KEY, GEMINI_API_KEY, ADMIN_API_KEY, and ALLOWED_ORIGINS. Optional secrets include) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 577.80 Tm
+(SENTRY_DSN and dedicated Groq keys for individual agents.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 563.70 Tm
+(Preferred backend reupload command:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 549.60 Tm
+(git subtree push --prefix backend hf main) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 535.50 Tm
+(If the Hugging Face Space history has diverged, upload the contents of the backend directory) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 525.40 Tm
+(through the Space file UI and wait for the Docker rebuild.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 511.30 Tm
+(Post-deployment checks:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 497.20 Tm
+(1. Confirm the Space root endpoint returns service status.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 487.10 Tm
+(2. Confirm /admin/health works with the admin key.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 477.00 Tm
+(3. Run one full simulation from the Vercel frontend.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 466.90 Tm
+(4. Test follow-up, milestone drill-down, what-if rerun, history, and share export.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 448.80 Tm
+(8. Testing Summary) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 427.80 Tm
+(Local validation completed:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 413.70 Tm
+(Frontend production build passes with npm run build.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 399.60 Tm
+(Backend import and syntax validation passes with python -m compileall app.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 385.50 Tm
+(Milestone expansion and what-if endpoints were smoke tested with local streamed responses.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 371.40 Tm
+(Recommended final acceptance test:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 357.30 Tm
+(Use the deployed frontend and backend together. Submit a realistic decision scenario, wait for) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 347.20 Tm
+(completion, expand one milestone, ask one follow-up, run one what-if rerun, export a PNG, reload) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 337.10 Tm
+(from history, and verify no console errors appear.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 319.00 Tm
+(9. Maintenance Notes) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 298.00 Tm
+(Keep the backend and frontend .env.example files synchronized with any new configuration) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 287.90 Tm
+(variables.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 273.80 Tm
+(Do not enable Supabase tables until persistence is required. If added later, save migrations) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 263.70 Tm
+(under backend/migrations and include Row Level Security policies.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 249.60 Tm
+(Keep Vercel and Hugging Face secrets separate from the repository.) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 235.50 Tm
+(Before a competition demo, verify provider quotas, Hugging Face build status, Vercel deployment) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 225.40 Tm
+(status, and CORS allowed origins.) Tj
+/F2 11.2 Tf
+1 0 0 1 46.00 207.30 Tm
+(10. Version 2 Deliverables) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 186.30 Tm
+(Version 2 includes:) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 172.20 Tm
+(Follow-up analysis, milestone drill-down, what-if reruns, share card export, responsive) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 162.10 Tm
+(simulation and result screens, improved agent labels, updated favicon, updated API) Tj
+/F1 8.4 Tf
+1 0 0 1 46.00 152.00 Tm
+(documentation, and Hugging Face reupload guidance.) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+7 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 4 0 R >>
+endobj
+8 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+9 0 obj
+<< /Type /Pages /Kids [6 0 R 7 0 R 8 0 R] /Count 3 >>
+endobj
+10 0 obj
+<< /Type /Catalog /Pages 9 0 R >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000005280 00000 n 
+0000010333 00000 n 
+0000014800 00000 n 
+0000014936 00000 n 
+0000015072 00000 n 
+0000015208 00000 n 
+0000015277 00000 n 
+trailer
+<< /Size 11 /Root 10 0 R >>
+startxref
+15327
+%%EOF
