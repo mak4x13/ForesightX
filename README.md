@@ -11,7 +11,7 @@
 
 Every decision rewrites the future. See all versions of it.
 
-[Live Demo](https://foresightx.vercel.app)
+[Live Demo](https://foresight-x-zeta.vercel.app/)
 
 ![React](https://img.shields.io/badge/React-18-00D4FF)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-39FF6A)
