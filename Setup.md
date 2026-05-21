@@ -1,0 +1,34 @@
+# ForesightX Setup Guide
+
+## Prerequisites
+
+- Node.js 20+
+- Python 3.11+
+- Docker Desktop for backend image testing
+- Groq and Google AI Studio API keys for full agent execution
+
+## Backend
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+uvicorn app.main:app --reload --port 7860
+```
+
+## Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Smoke Tests
+
+```bash
+curl http://localhost:7860/
+curl -H "X-Admin-Key: replace-with-admin-key" http://localhost:7860/admin/health
+```
