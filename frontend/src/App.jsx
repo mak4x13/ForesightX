@@ -1,3 +1,6 @@
+import { History } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import { InputForm } from "./components/InputForm.jsx";
 import { AgentVisualizer } from "./components/AgentVisualizer.jsx";
 import { HealthBadge } from "./components/HealthBadge.jsx";
@@ -5,7 +8,6 @@ import { HistoryPanel } from "./components/HistoryPanel.jsx";
 import { TimelineResults } from "./components/TimelineResults.jsx";
 import { useSimulation } from "./hooks/useSimulation.js";
 import { readSessionHistory, writeSessionHistory } from "./hooks/useSessionHistory.js";
-import { useEffect, useState } from "react";
 
 function App() {
   const { agents, error, loadResult, progress, reset, result, startSimulation, status } = useSimulation();
@@ -28,12 +30,28 @@ function App() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-void text-textPrimary">
       <section
-        className={`relative px-4 py-8 transition duration-page ${
-          status === "idle" ? "flex min-h-screen items-center justify-center" : "min-h-screen"
+        className={`relative px-4 transition duration-page ${
+          status === "idle"
+            ? "flex min-h-screen items-center justify-center py-8"
+            : status === "complete"
+              ? "h-screen overflow-hidden py-3"
+              : "min-h-screen py-8"
         }`}
       >
         <div className="starfield" aria-hidden="true" />
-        <div className="relative z-10 w-full">
+        {status !== "complete" && (
+          <button
+            className="absolute right-4 top-4 z-30 inline-flex items-center gap-2 rounded-md border border-cyan bg-void/50 px-3 py-2 font-display text-[0.65rem] font-bold uppercase tracking-[0.18em] text-cyan backdrop-blur transition duration-hover hover:scale-[1.03] hover:bg-cyan hover:text-void md:right-6 md:top-6"
+            type="button"
+            onClick={() => setHistoryOpen(true)}
+            aria-label="Open history"
+          >
+            <History size={16} />
+            <span className="hidden sm:inline">History</span>
+          </button>
+        )}
+        <div className={`relative z-10 w-full ${status === "complete" ? "mx-auto flex h-full max-w-7xl flex-col" : ""}`}>
+          {status !== "complete" && (
           <div className={`text-center transition duration-page ${status === "idle" ? "mb-8" : "mb-4"}`}>
             <p className="font-display text-sm font-bold uppercase tracking-[0.4em] text-cyan">
               ForesightX
@@ -45,6 +63,7 @@ function App() {
               See all versions of it.
             </p>
           </div>
+          )}
           {status === "idle" && <InputForm onSubmit={startSimulation} />}
           {status === "running" && (
             <>
@@ -54,11 +73,41 @@ function App() {
           )}
           {status === "complete" && (
             <>
-              <AgentVisualizer compact agents={agents} progress={progress} />
+              <div className="flex h-[180px] shrink-0 flex-col justify-between gap-3 overflow-hidden rounded-lg border border-border bg-surface/45 p-3 backdrop-blur-xl">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-display text-xs font-bold uppercase tracking-[0.35em] text-cyan">
+                      ForesightX
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <h1 className="font-display text-lg font-black uppercase text-textPrimary md:text-2xl">
+                        Simulation Complete
+                      </h1>
+                      <span className="rounded-full border border-amber/50 bg-amber/10 px-3 py-1 font-ui text-[0.65rem] font-bold uppercase tracking-[0.18em] text-amber">
+                        {displayedResult.input.domain}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center justify-end gap-3">
+                    <p className="hidden text-right font-mono text-xs leading-4 text-textMuted sm:block">
+                      {new Date(displayedResult.timestamp).toLocaleString()}
+                    </p>
+                    <button
+                      className="inline-flex items-center gap-2 rounded-md border border-cyan bg-void/50 px-3 py-2 font-display text-[0.65rem] font-bold uppercase tracking-[0.18em] text-cyan backdrop-blur transition duration-hover hover:scale-[1.03] hover:bg-cyan hover:text-void"
+                      type="button"
+                      onClick={() => setHistoryOpen(true)}
+                      aria-label="Open history"
+                    >
+                      <History size={16} />
+                      <span className="hidden sm:inline">History</span>
+                    </button>
+                  </div>
+                </div>
+                <AgentVisualizer compact agents={agents} progress={progress} />
+              </div>
               <TimelineResults
                 result={displayedResult}
                 onAgain={reset}
-                onHistory={() => setHistoryOpen(true)}
               />
             </>
           )}

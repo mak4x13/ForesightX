@@ -1,46 +1,30 @@
 import PropTypes from "prop-types";
 
+import { FollowUpPanel } from "./FollowUpPanel.jsx";
 import { TimelineCard } from "./TimelineCard.jsx";
 
-export function TimelineResults({ result = null, onAgain, onHistory }) {
+export function TimelineResults({ result = null, onAgain }) {
   if (!result) {
     return null;
   }
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 pb-10">
-      <div className="mb-6 rounded-lg border border-border bg-surface/60 p-4 backdrop-blur-xl md:flex md:items-end md:justify-between">
-        <div>
-          <p className="font-ui text-[0.65rem] font-bold uppercase tracking-[0.28em] text-cyan">
-            Simulation Complete
-          </p>
-          <h2 className="mt-2 font-display text-xl font-black text-textPrimary md:text-3xl">
-            Three futures generated from one decision.
-          </h2>
-        </div>
-        <p className="mt-3 max-w-xl font-mono text-xs leading-5 text-textMuted md:mt-0 md:text-right">
-          {result.input.domain} / {new Date(result.timestamp).toLocaleString()}
-        </p>
-      </div>
-      <div className="grid gap-5 lg:grid-cols-3">
+    <section className="flex min-h-0 flex-1 flex-col pt-3">
+      <div className="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-3">
         <TimelineCard outcome={result.outcomes.optimistic} variant="optimistic" delay={0} />
         <TimelineCard outcome={result.outcomes.realistic} variant="realistic" delay={150} />
         <TimelineCard outcome={result.outcomes.pessimistic} variant="pessimistic" delay={300} />
       </div>
-      <div className="mt-7 flex flex-wrap justify-center gap-3">
+      <div className="pt-3">
+        <FollowUpPanel result={result} />
+      </div>
+      <div className="flex shrink-0 flex-wrap justify-center gap-3 py-3">
         <button
           className="rounded-md bg-amber px-5 py-3 font-display text-xs font-bold uppercase tracking-[0.2em] text-void transition duration-hover hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(245,166,35,0.4)]"
           type="button"
           onClick={onAgain}
         >
           Simulate Again
-        </button>
-        <button
-          className="rounded-md border border-cyan px-5 py-3 font-display text-xs font-bold uppercase tracking-[0.2em] text-cyan transition duration-hover hover:scale-[1.03] hover:bg-cyan hover:text-void"
-          type="button"
-          onClick={onHistory}
-        >
-          View History
         </button>
       </div>
     </section>
@@ -49,6 +33,5 @@ export function TimelineResults({ result = null, onAgain, onHistory }) {
 
 TimelineResults.propTypes = {
   onAgain: PropTypes.func.isRequired,
-  onHistory: PropTypes.func.isRequired,
   result: PropTypes.object,
 };

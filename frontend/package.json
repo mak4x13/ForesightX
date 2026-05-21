@@ -7,6 +7,7 @@
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "dev:open": "vite --host 127.0.0.1 --port 5173 --strictPort --open",
     "build": "vite build",
+    "icons": "node scripts/generate-icons.mjs",
     "preview": "vite preview",
     "lint": "eslint ."
   },

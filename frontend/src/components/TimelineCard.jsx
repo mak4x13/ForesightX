@@ -43,7 +43,7 @@ export function TimelineCard({ outcome, variant, delay }) {
 
   return (
     <article
-      className={`animate-timeline-reveal rounded-lg border border-l-4 border-border ${accent} bg-surface/80 p-5 opacity-0`}
+      className={`timeline-scroll-card relative max-h-[60vh] min-h-0 overflow-y-auto rounded-lg border border-l-4 border-border ${accent} bg-surface/80 p-5 opacity-0 animate-timeline-reveal lg:h-full lg:max-h-none`}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between gap-4">

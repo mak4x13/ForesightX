@@ -71,3 +71,9 @@ class SimulationResult(BaseModel):
     input: SimulationInput
     outcomes: SimulationOutcomes
     meta: SimulationMeta
+
+
+class FollowupRequest(BaseModel):
+    question: str = Field(..., min_length=2, max_length=300)
+    simulation_context: SimulationResult
+    session_id: str = Field(..., min_length=1, max_length=120)

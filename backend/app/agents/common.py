@@ -219,3 +219,54 @@ async def call_groq_json(
         response.raise_for_status()
         content = response.json()["choices"][0]["message"]["content"]
         return extract_json_object(content)
+
+
+async def stream_groq_text(
+    *,
+    system_prompt: str,
+    user_payload: dict[str, Any],
+    api_key: str = "",
+):
+    key = api_key or settings.groq_api_key
+    if not key:
+        raise RuntimeError("GROQ_API_KEY is not configured.")
+
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": settings.groq_model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": json.dumps(user_payload)},
+        ],
+        "temperature": 0.25,
+        "max_tokens": 900,
+        "stream": True,
+    }
+
+    last_error = None
+    async with httpx.AsyncClient(timeout=80) as client:
+        for model in _groq_models():
+            payload["model"] = model
+            async with client.stream("POST", GROQ_URL, headers=headers, json=payload) as response:
+                if response.status_code == 429:
+                    last_error = RuntimeError("Groq rate limit reached.")
+                    continue
+                response.raise_for_status()
+                async for line in response.aiter_lines():
+                    if not line.startswith("data:"):
+                        continue
+                    data = line.removeprefix("data:").strip()
+                    if data == "[DONE]":
+                        return
+                    try:
+                        chunk = json.loads(data)["choices"][0].get("delta", {}).get("content")
+                    except (KeyError, json.JSONDecodeError, IndexError):
+                        chunk = None
+                    if chunk:
+                        yield chunk
+                return
+
+    raise RuntimeError(f"Groq streaming failed for all configured models: {last_error}")

@@ -51,6 +51,45 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
     agent: agents[node.id],
   }));
 
+  if (compact) {
+    return (
+      <section className="w-full">
+        <div className="mb-2 flex items-center justify-between gap-4">
+          <p className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.24em] text-textMuted">
+            Agent Pipeline
+          </p>
+          <p className="font-mono text-xs text-amber">{progress}%</p>
+        </div>
+        <div className="mb-3 h-1.5 overflow-hidden rounded-full border border-border bg-void/70">
+          <div
+            className="h-full bg-amber shadow-[0_0_18px_rgba(245,166,35,0.65)] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="grid grid-cols-5 gap-2 rounded-md border border-border bg-void/35 px-3 py-2">
+          {agentList.map((node) => (
+            <div key={node.id} className="flex min-w-0 items-center justify-center gap-2">
+              <div
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${node.color} font-display text-[0.65rem] font-black text-void`}
+                style={{ boxShadow: node.glow }}
+              >
+                {node.label}
+              </div>
+              <span className="hidden min-w-0 flex-col leading-none sm:flex">
+                <span className="truncate font-ui text-[0.62rem] font-bold text-textPrimary">
+                  {node.agent?.name || node.id}
+                </span>
+                <span className="mt-1 truncate font-ui text-[0.52rem] font-semibold uppercase tracking-[0.15em] text-textMuted">
+                  {node.agent?.status || "idle"}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={`mx-auto w-full max-w-6xl px-1 transition duration-page ${compact ? "py-3" : "py-8"}`}>
       <div className="mb-3 flex items-center justify-between gap-4">
@@ -65,24 +104,6 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
           style={{ width: `${progress}%` }}
         />
       </div>
-      {compact && (
-        <div className="grid grid-cols-5 gap-2 rounded-lg border border-border bg-surface/55 p-3 backdrop-blur-xl">
-          {agentList.map((node) => (
-            <div key={node.id} className="flex flex-col items-center gap-2">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${node.color} font-display text-xs font-black text-void`}
-                style={{ boxShadow: node.glow }}
-              >
-                {node.label}
-              </div>
-              <span className="max-w-full truncate font-ui text-[0.58rem] font-semibold uppercase tracking-[0.15em] text-textMuted">
-                {node.agent?.status || "idle"}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-      {!compact && (
       <div className="relative hidden min-h-[560px] rounded-lg border border-border bg-surface/50 p-5 backdrop-blur-xl md:block">
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path className="connection-line" d="M50 16 L18 48 M50 16 L50 48 M50 16 L82 48 M18 52 L50 84 M50 52 L50 84 M82 52 L50 84" />
@@ -112,8 +133,6 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
           );
         })}
       </div>
-      )}
-      {!compact && (
         <div className="grid gap-3 md:hidden">
           {agentList.map((node) => (
             <div key={node.id} className="grid grid-cols-[3.5rem_1fr] items-start gap-3 rounded-lg border border-border bg-surface/65 p-3 backdrop-blur-xl">
@@ -131,7 +150,6 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
             </div>
           ))}
         </div>
-      )}
     </section>
   );
 }

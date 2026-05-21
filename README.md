@@ -36,6 +36,7 @@ flowchart LR
   P2 --> S
   P3 --> S
   S --> F
+  F -->|POST /simulate/followup| A[Groq Analyst]
   B --> M[Sentry]
   F --> M
 ```
@@ -45,6 +46,7 @@ flowchart LR
 - Cinematic decision input flow with starfield visuals and custom design tokens.
 - Five-agent future simulation architecture: orchestrator, optimist, realist, pessimist, synthesizer.
 - Server-Sent Events for real-time agent activity with `POST /simulate` and native EventSource-compatible `GET /simulate/stream`.
+- Follow-up Analysis streams concise Groq-powered answers against completed simulations.
 - Local session history with `localStorage`; no database or auth needed for v1.
 - Sentry hooks and admin health route included from the first build.
 

@@ -20,6 +20,7 @@ uvicorn app.main:app --reload --port 7860
 | `GET` | `/` | Service identity and status | none |
 | `POST` | `/simulate` | SSE simulation stream | `10/minute` |
 | `GET` | `/simulate/stream` | Native EventSource-compatible SSE stream | `10/minute` |
+| `POST` | `/simulate/followup` | SSE follow-up analyst stream | `8/minute` |
 | `GET` | `/admin/health` | Admin health payload protected by `X-Admin-Key` | `5/minute` |
 
 ## Agent Pipeline
@@ -29,6 +30,28 @@ uvicorn app.main:app --reload --port 7860
 3. Synthesizer normalizes probabilities and returns the final simulation JSON.
 
 If API keys are missing, each agent emits a fallback error event and returns deterministic demo-safe output. With `GEMINI_API_KEY` and `GROQ_API_KEY` configured, the agents call Gemini and Groq over HTTPS.
+
+## Follow-Up Analysis
+
+`POST /simulate/followup` streams analyst commentary for a completed simulation.
+
+Request body:
+
+```json
+{
+  "question": "Which path should I act on first?",
+  "simulation_context": { "simulation_id": "full SimulationResult JSON" },
+  "session_id": "simulation uuid"
+}
+```
+
+SSE events:
+
+```text
+data: {"event":"analyst_chunk","chunk":"partial text"}
+data: {"event":"analyst_done"}
+data: {"event":"error","message":"..."}
+```
 
 ## Docker
 

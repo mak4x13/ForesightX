@@ -23,6 +23,7 @@ App
 |   +-- AgentCard
 +-- TimelineResults
 |   +-- TimelineCard
+|   +-- FollowUpPanel
 +-- HistoryPanel
 +-- HealthBadge
 ```
@@ -38,3 +39,5 @@ The design system is defined in `src/design/tokens.js` and consumed by `tailwind
 ## Streaming
 
 `useSimulation` opens a native `EventSource` connection to `/simulate/stream`, parses every SSE message, and updates agent cards, pipeline progress, error states, and final timeline results.
+
+`FollowUpPanel` posts completed simulation context to `/simulate/followup` and streams analyst chunks into a collapsible panel.
