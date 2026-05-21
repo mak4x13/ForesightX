@@ -37,6 +37,8 @@ flowchart LR
   P3 --> S
   S --> F
   F -->|POST /simulate/followup| A[Groq Analyst]
+  F -->|POST /simulate/expand-milestone| D[Groq Milestone Drill-down]
+  F -->|POST /simulate/whatif| W[Partial What-If Rerun]
   B --> M[Sentry]
   F --> M
 ```
@@ -47,6 +49,9 @@ flowchart LR
 - Five-agent future simulation architecture: orchestrator, optimist, realist, pessimist, synthesizer.
 - Server-Sent Events for real-time agent activity with `POST /simulate` and native EventSource-compatible `GET /simulate/stream`.
 - Follow-up Analysis streams concise Groq-powered answers against completed simulations.
+- Milestone Drill-down expands individual timeline steps with cached, streamed AI insight.
+- What-If Branch reruns the three outcome agents and synthesizer without repeating orchestration.
+- Share Card exports a branded PNG summary of the three futures from the browser.
 - Local session history with `localStorage`; no database or auth needed for v1.
 - Sentry hooks and admin health route included from the first build.
 
@@ -107,7 +112,15 @@ Frontend deploys to Vercel from `/frontend`; set `VITE_BACKEND_URL` and `VITE_SE
 
 Backend deploys to a public Hugging Face Docker Space from `/backend`; add all backend secrets in Space settings and expose port `7860`.
 
-Supabase is not active in v1. If persistence is added later, SQL migrations will live in `backend/migrations/` and include RLS policies.
+To reupload the backend after a GitHub push:
+
+```bash
+git subtree push --prefix backend hf main
+```
+
+If the Space history has diverged, upload the contents of `backend/` through the Hugging Face Space file UI and let the Docker Space rebuild.
+
+Supabase is not active. If persistence is added later, SQL migrations will live in `backend/migrations/` and include RLS policies.
 
 ## Contributing
 

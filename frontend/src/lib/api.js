@@ -13,3 +13,11 @@ export function simulateStreamUrl(input) {
 export function followupUrl() {
   return `${API_BASE_URL}/simulate/followup`;
 }
+
+export function expandMilestoneUrl() {
+  return `${API_BASE_URL}/simulate/expand-milestone`;
+}
+
+export function whatIfUrl() {
+  return `${API_BASE_URL}/simulate/whatif`;
+}

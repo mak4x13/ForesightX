@@ -70,6 +70,7 @@ async def run_pipeline(payload: SimulationRequest):
     execution_time_ms = int((perf_counter() - started) * 1000)
     try:
         result = await run_synthesizer(payload, outputs, execution_time_ms, emit)
+        result["meta"]["briefing"] = briefing
     except Exception as exc:
         await emit(
             {
@@ -85,6 +86,7 @@ async def run_pipeline(payload: SimulationRequest):
             "pessimistic": fallback_agent_output("pessimistic", briefing),
         }
         result = await run_synthesizer(payload, safe_outputs, execution_time_ms, emit)
+        result["meta"]["briefing"] = briefing
     while not queue.empty():
         yield await queue.get()
 

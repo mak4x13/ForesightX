@@ -48,3 +48,28 @@ Open `http://127.0.0.1:5173`. If port `5173` is busy, stop the existing Vite pro
 curl http://localhost:7860/
 curl -H "X-Admin-Key: replace-with-admin-key" http://localhost:7860/admin/health
 ```
+
+## Reupload Backend V2 To Hugging Face Space
+
+Vercel will redeploy the frontend from GitHub automatically after the push. For the backend, update the existing Hugging Face Docker Space with the backend files:
+
+```bash
+git subtree push --prefix backend hf main
+```
+
+If the Space rejects the push because its history diverged, use the Hugging Face web UI upload instead:
+
+1. Open `https://huggingface.co/spaces/mak4x13/ForesightX/tree/main`.
+2. Upload the contents of the local `backend/` folder.
+3. Keep the Space SDK set to Docker.
+4. Confirm Space secrets include `GROQ_API_KEY`, `GEMINI_API_KEY`, `ADMIN_API_KEY`, `ALLOWED_ORIGINS`, and optional Sentry/Groq per-agent keys.
+5. Wait for the Space build logs to show the container listening on port `7860`.
+
+After the Space rebuilds, smoke test:
+
+```bash
+curl https://mak4x13-foresightx.hf.space/
+curl -H "X-Admin-Key: your-admin-key" https://mak4x13-foresightx.hf.space/admin/health
+```
+
+Then run one full simulation from the Vercel frontend and test follow-up, milestone drill-down, what-if, and share export.

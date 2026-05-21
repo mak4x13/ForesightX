@@ -5,9 +5,11 @@ from app.core.config import settings
 from app.core.limiter import SLOWAPI_AVAILABLE, limiter
 from app.core.metrics import increment_requests, mark_error
 from app.core.sentry import init_sentry
+from app.routes.expand import router as expand_router
 from app.routes.followup import router as followup_router
 from app.routes.health import router as health_router
 from app.routes.simulate import router as simulate_router
+from app.routes.whatif import router as whatif_router
 
 
 init_sentry()
@@ -38,6 +40,8 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(simulate_router)
 app.include_router(followup_router)
+app.include_router(expand_router)
+app.include_router(whatif_router)
 
 
 @app.middleware("http")

@@ -21,6 +21,8 @@ uvicorn app.main:app --reload --port 7860
 | `POST` | `/simulate` | SSE simulation stream | `10/minute` |
 | `GET` | `/simulate/stream` | Native EventSource-compatible SSE stream | `10/minute` |
 | `POST` | `/simulate/followup` | SSE follow-up analyst stream | `8/minute` |
+| `POST` | `/simulate/expand-milestone` | SSE milestone explanation stream | `15/minute` |
+| `POST` | `/simulate/whatif` | SSE partial rerun for modified variables | `6/minute` |
 | `GET` | `/admin/health` | Admin health payload protected by `X-Admin-Key` | `5/minute` |
 
 ## Agent Pipeline
@@ -50,6 +52,50 @@ SSE events:
 ```text
 data: {"event":"analyst_chunk","chunk":"partial text"}
 data: {"event":"analyst_done"}
+data: {"event":"error","message":"..."}
+```
+
+## Milestone Drill-Down
+
+`POST /simulate/expand-milestone` streams a short explanation for one selected timeline step.
+
+Request body:
+
+```json
+{
+  "milestone": "0-30 days: Early signal appears and the decision gains momentum.",
+  "context": "OPTIMISTIC outcome\nProbability: 35%\nFinal state: ...",
+  "outcome_type": "optimistic"
+}
+```
+
+SSE events:
+
+```text
+data: {"event":"milestone_chunk","chunk":"partial text"}
+data: {"event":"milestone_done"}
+data: {"event":"error","message":"..."}
+```
+
+## What-If Branch
+
+`POST /simulate/whatif` reruns only the Optimist, Realist, Pessimist, and Synthesizer agents using the original briefing plus one changed variable.
+
+Request body:
+
+```json
+{
+  "modification": "I have two extra engineers available",
+  "original_briefing": { "context": { "situation": "...", "decision": "...", "domain": "Startup" } },
+  "session_id": "simulation uuid"
+}
+```
+
+SSE events include normal agent status/output events plus:
+
+```text
+data: {"event":"pipeline_stage","stage":"what_if_agents","progress":35}
+data: {"event":"whatif_complete","result":{ "...": "updated SimulationResult JSON" }}
 data: {"event":"error","message":"..."}
 ```
 

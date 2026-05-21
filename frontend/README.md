@@ -24,6 +24,7 @@ App
 +-- TimelineResults
 |   +-- TimelineCard
 |   +-- FollowUpPanel
+|   +-- ShareSnapshot
 +-- HistoryPanel
 +-- HealthBadge
 ```
@@ -41,3 +42,9 @@ The design system is defined in `src/design/tokens.js` and consumed by `tailwind
 `useSimulation` opens a native `EventSource` connection to `/simulate/stream`, parses every SSE message, and updates agent cards, pipeline progress, error states, and final timeline results.
 
 `FollowUpPanel` posts completed simulation context to `/simulate/followup` and streams analyst chunks into a collapsible panel.
+
+`TimelineCard` sends clicked milestones to `/simulate/expand-milestone`, streams the explanation inline, and caches each result client-side so repeat expands do not call the API again.
+
+Each `TimelineCard` also owns a compact What-If input. `TimelineResults` sends the modified variable to `/simulate/whatif`, replaces the visible outcome set when the partial rerun completes, and marks the triggering card with a `MODIFIED` badge.
+
+`ShareSnapshot` renders an offscreen export layout that `TimelineResults` captures with `html2canvas` for the branded PNG share card.

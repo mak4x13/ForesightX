@@ -9,7 +9,8 @@ const nodeConfig = [
     y: "12%",
     color: "bg-amber",
     glow: "0 0 34px rgba(245,166,35,0.7)",
-    label: "O",
+    label: "OR",
+    shortName: "Orchestrator",
   },
   {
     id: "optimist",
@@ -17,7 +18,8 @@ const nodeConfig = [
     y: "48%",
     color: "bg-optimist",
     glow: "0 0 34px rgba(57,255,106,0.55)",
-    label: "B",
+    label: "OP",
+    shortName: "Optimist",
   },
   {
     id: "realist",
@@ -25,7 +27,8 @@ const nodeConfig = [
     y: "48%",
     color: "bg-realist",
     glow: "0 0 34px rgba(200,214,229,0.45)",
-    label: "R",
+    label: "RE",
+    shortName: "Realist",
   },
   {
     id: "pessimist",
@@ -33,7 +36,8 @@ const nodeConfig = [
     y: "48%",
     color: "bg-pessimist",
     glow: "0 0 34px rgba(255,59,59,0.55)",
-    label: "W",
+    label: "PE",
+    shortName: "Pessimist",
   },
   {
     id: "synthesizer",
@@ -41,7 +45,8 @@ const nodeConfig = [
     y: "84%",
     color: "bg-agent",
     glow: "0 0 34px rgba(180,79,255,0.65)",
-    label: "S",
+    label: "SY",
+    shortName: "Synthesizer",
   },
 ];
 
@@ -66,18 +71,18 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="grid grid-cols-5 gap-2 rounded-md border border-border bg-void/35 px-3 py-2">
+        <div className="flex gap-2 overflow-x-auto rounded-md border border-border bg-void/35 px-3 py-2 scrollbar-hidden sm:grid sm:grid-cols-5 sm:overflow-visible">
           {agentList.map((node) => (
-            <div key={node.id} className="flex min-w-0 items-center justify-center gap-2">
+            <div key={node.id} className="flex min-w-[8.5rem] items-center justify-start gap-2 sm:min-w-0 sm:justify-center">
               <div
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${node.color} font-display text-[0.65rem] font-black text-void`}
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${node.color} font-display text-[0.58rem] font-black text-void`}
                 style={{ boxShadow: node.glow }}
               >
                 {node.label}
               </div>
-              <span className="hidden min-w-0 flex-col leading-none sm:flex">
+              <span className="flex min-w-0 flex-col leading-none">
                 <span className="truncate font-ui text-[0.62rem] font-bold text-textPrimary">
-                  {node.agent?.name || node.id}
+                  {node.shortName}
                 </span>
                 <span className="mt-1 truncate font-ui text-[0.52rem] font-semibold uppercase tracking-[0.15em] text-textMuted">
                   {node.agent?.status || "idle"}
@@ -117,7 +122,7 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
               style={{ left: node.x, top: node.y }}
             >
               <div
-                className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${node.color} font-display text-sm font-black text-void ${agent?.status === "thinking" ? "animate-agent-pulse" : ""}`}
+                className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${node.color} font-display text-xs font-black text-void ${agent?.status === "thinking" ? "animate-agent-pulse" : ""}`}
                 style={{ boxShadow: node.glow }}
               >
                 {node.label}
@@ -137,7 +142,7 @@ export function AgentVisualizer({ agents, progress, compact = false }) {
           {agentList.map((node) => (
             <div key={node.id} className="grid grid-cols-[3.5rem_1fr] items-start gap-3 rounded-lg border border-border bg-surface/65 p-3 backdrop-blur-xl">
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-full ${node.color} font-display text-sm font-black text-void ${node.agent?.status === "thinking" ? "animate-agent-pulse" : ""}`}
+                className={`flex h-12 w-12 items-center justify-center rounded-full ${node.color} font-display text-[0.65rem] font-black text-void ${node.agent?.status === "thinking" ? "animate-agent-pulse" : ""}`}
                 style={{ boxShadow: node.glow }}
               >
                 {node.label}

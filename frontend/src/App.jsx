@@ -34,7 +34,7 @@ function App() {
           status === "idle"
             ? "flex min-h-screen items-center justify-center py-8"
             : status === "complete"
-              ? "h-screen overflow-hidden py-3"
+              ? "min-h-screen overflow-y-auto py-3 lg:h-screen lg:overflow-hidden"
               : "min-h-screen py-8"
         }`}
       >
@@ -50,7 +50,7 @@ function App() {
             <span className="hidden sm:inline">History</span>
           </button>
         )}
-        <div className={`relative z-10 w-full ${status === "complete" ? "mx-auto flex h-full max-w-7xl flex-col" : ""}`}>
+        <div className={`relative z-10 w-full ${status === "complete" ? "mx-auto flex min-h-screen max-w-7xl flex-col lg:h-full lg:min-h-0" : ""}`}>
           {status !== "complete" && (
           <div className={`text-center transition duration-page ${status === "idle" ? "mb-8" : "mb-4"}`}>
             <p className="font-display text-sm font-bold uppercase tracking-[0.4em] text-cyan">
@@ -73,8 +73,8 @@ function App() {
           )}
           {status === "complete" && (
             <>
-              <div className="flex h-[180px] shrink-0 flex-col justify-between gap-3 overflow-hidden rounded-lg border border-border bg-surface/45 p-3 backdrop-blur-xl">
-                <div className="flex items-start justify-between gap-4">
+              <div className="flex shrink-0 flex-col justify-between gap-3 overflow-hidden rounded-lg border border-border bg-surface/45 p-3 backdrop-blur-xl lg:h-[180px]">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div>
                     <p className="font-display text-xs font-bold uppercase tracking-[0.35em] text-cyan">
                       ForesightX
@@ -88,8 +88,8 @@ function App() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex shrink-0 items-center justify-end gap-3">
-                    <p className="hidden text-right font-mono text-xs leading-4 text-textMuted sm:block">
+                  <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
+                    <p className="text-left font-mono text-[0.65rem] leading-4 text-textMuted sm:text-right sm:text-xs">
                       {new Date(displayedResult.timestamp).toLocaleString()}
                     </p>
                     <button

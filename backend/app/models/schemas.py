@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -63,6 +63,8 @@ class SimulationMeta(BaseModel):
     execution_time_ms: int
     model_orchestrator: str = "gemini-2.5-flash"
     model_agents: str = "llama-3.3-70b-versatile"
+    briefing: Optional[dict[str, Any]] = None
+    what_if_modification: Optional[str] = None
 
 
 class SimulationResult(BaseModel):
@@ -76,4 +78,16 @@ class SimulationResult(BaseModel):
 class FollowupRequest(BaseModel):
     question: str = Field(..., min_length=2, max_length=300)
     simulation_context: SimulationResult
+    session_id: str = Field(..., min_length=1, max_length=120)
+
+
+class ExpandMilestoneRequest(BaseModel):
+    milestone: str = Field(..., min_length=2, max_length=500)
+    context: str = Field(..., min_length=2, max_length=2000)
+    outcome_type: Literal["optimistic", "realistic", "pessimistic"]
+
+
+class WhatIfRequest(BaseModel):
+    modification: str = Field(..., min_length=2, max_length=200)
+    original_briefing: dict[str, Any]
     session_id: str = Field(..., min_length=1, max_length=120)
