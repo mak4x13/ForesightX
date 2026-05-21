@@ -9,6 +9,19 @@ export function TimelineResults({ result = null, onAgain, onHistory }) {
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 pb-10">
+      <div className="mb-6 rounded-lg border border-border bg-surface/60 p-4 backdrop-blur-xl md:flex md:items-end md:justify-between">
+        <div>
+          <p className="font-ui text-[0.65rem] font-bold uppercase tracking-[0.28em] text-cyan">
+            Simulation Complete
+          </p>
+          <h2 className="mt-2 font-display text-xl font-black text-textPrimary md:text-3xl">
+            Three futures generated from one decision.
+          </h2>
+        </div>
+        <p className="mt-3 max-w-xl font-mono text-xs leading-5 text-textMuted md:mt-0 md:text-right">
+          {result.input.domain} / {new Date(result.timestamp).toLocaleString()}
+        </p>
+      </div>
       <div className="grid gap-5 lg:grid-cols-3">
         <TimelineCard outcome={result.outcomes.optimistic} variant="optimistic" delay={0} />
         <TimelineCard outcome={result.outcomes.realistic} variant="realistic" delay={150} />

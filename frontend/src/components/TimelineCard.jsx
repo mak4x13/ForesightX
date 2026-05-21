@@ -25,6 +25,12 @@ const accents = {
   PESSIMISTIC: "border-l-pessimist text-pessimist",
 };
 
+const sectionLabels = {
+  optimistic: "Enablers",
+  realistic: "Friction",
+  pessimistic: "Risks",
+};
+
 export function TimelineCard({ outcome, variant, delay }) {
   const count = useCountUp(outcome.probability);
   const accent = accents[outcome.label];
@@ -61,13 +67,16 @@ export function TimelineCard({ outcome, variant, delay }) {
               <span className="block font-ui text-xs font-semibold uppercase tracking-[0.18em] text-textMuted">
                 {milestone.timeframe}
               </span>
-              <span className="mt-1 block font-mono text-sm leading-6 text-textPrimary">
+              <span className="mt-1 block font-mono text-sm leading-6 text-textPrimary/90">
                 {milestone.description}
               </span>
             </span>
           </li>
         ))}
       </ol>
+      <p className="mt-6 font-ui text-[0.65rem] font-bold uppercase tracking-[0.22em] text-textMuted">
+        {sectionLabels[variant]}
+      </p>
       <div className="mt-6 grid gap-2">
         {details?.slice(0, 3).map((item) => (
           <p key={item} className="rounded-md border border-border bg-void/50 px-3 py-2 font-mono text-xs text-textMuted">

@@ -41,7 +41,7 @@ function App() {
             <h1 className={`${status === "idle" ? "mt-4 text-3xl md:text-6xl" : "mt-2 text-xl md:text-3xl"} font-display font-black leading-tight text-textPrimary`}>
               Every decision rewrites the future.
             </h1>
-            <p className="typewriter mx-auto mt-4 max-w-3xl font-mono text-sm text-textMuted md:text-base">
+            <p className="typewriter mx-auto mt-4 max-w-[20rem] font-mono text-sm text-textMuted sm:max-w-3xl md:text-base">
               See all versions of it.
             </p>
           </div>
